@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 
 @Component({
   selector: 'app-workout',
@@ -6,4 +6,7 @@ import { Component } from '@angular/core';
   templateUrl: './workout.html',
   styleUrl: './workout.css',
 })
-export class Workout {}
+
+export class WorkoutPage {
+
+}

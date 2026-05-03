@@ -1,3 +1,172 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
 
-@import 'tailwindcss';
+@theme {
+  --color-surface: #0F1115;
+  --color-surface-raised: #1A1D23;
+  --color-surface-input: #1F2329;
+  --color-line: #2A2E36;
+  --color-accent: #5DCAA5;
+  --color-accent-contrast: #04342C;
+  --color-foreground: #F5F5F7;
+  --color-muted: #8A8F9C;
+}
+
+html, body {
+  background-color: var(--color-surface);
+  color: var(--color-foreground);
+  min-height: 100vh;
+}
+
+/* Page container — every page wraps content in this */
+@utility page-container {
+  max-width: 28rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  padding-block: 1.5rem;
+  min-height: 100vh;
+}
+
+/* Card surface — used for stat cards, workout summaries, list items */
+@utility card {
+  background-color: var(--color-surface-raised);
+  border-radius: 0.875rem;
+  padding: 1rem;
+}
+
+/* Card with a subtle accent border — used for the active set logger */
+@utility card-active {
+  background-color: var(--color-surface-input);
+  border: 0.5px solid var(--color-accent);
+  border-radius: 0.875rem;
+  padding: 1rem;
+}
+
+/* Section label — small uppercase muted text above sections */
+@utility label-eyebrow {
+  font-size: 0.6875rem;
+  color: var(--color-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+/* Form field label — for inputs, slightly different from eyebrow */
+@utility label-field {
+  font-size: 0.625rem;
+  color: var(--color-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+/* Text input style */
+@utility input-base {
+  background-color: var(--color-surface);
+  border: 0.5px solid var(--color-line);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  color: var(--color-foreground);
+  font-size: 0.875rem;
+  width: 100%;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-accent);
+  }
+}
+
+/* Primary button — the green CTAs (Start workout, Log set) */
+@utility btn-primary {
+  background-color: var(--color-accent);
+  color: var(--color-accent-contrast);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-align: center;
+  width: 100%;
+  cursor: pointer;
+  transition: opacity 150ms;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+/* Secondary button — outlined, used for less prominent actions */
+@utility btn-secondary {
+  background-color: transparent;
+  color: var(--color-foreground);
+  border: 0.5px solid var(--color-line);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-align: center;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--color-surface-raised);
+  }
+}
+
+/* Danger button — outlined red, used for Finish workout */
+@utility btn-danger {
+  background-color: transparent;
+  color: #F09595;
+  border: 0.5px solid #E24B4A;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-align: center;
+  width: 100%;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(226, 75, 74, 0.1);
+  }
+}
+
+/* Dashed button — for "+ Add custom exercise" type actions */
+@utility btn-dashed {
+  background-color: transparent;
+  border: 1px dashed var(--color-line);
+  border-radius: 0.75rem;
+  padding: 0.875rem;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  text-align: center;
+  width: 100%;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-muted);
+    color: var(--color-foreground);
+  }
+}
+
+@utility nav-link {
+  padding: 0.375rem 0.875rem;
+  font-size: 0.6875rem;
+  color: var(--color-muted);
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: color 150ms;
+
+  &:hover {
+    color: var(--color-foreground);
+  }
+
+  &:active {
+    background-color: var(--color-accent);
+    color: var(--color-accent-contrast);
+    font-weight: 500;
+  }
+}
