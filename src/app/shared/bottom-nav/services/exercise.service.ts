@@ -1,12 +1,10 @@
 import { Injectable, inject, signal, computed, effect } from "@angular/core";
 import { Exercise } from "../models/exercise.model";
-import { StorageService } from "./storage.service";
+
+const STORAGE_KEY = 'workout-log:custom-exercises';
 
 @Injectable({ providedIn: 'root' })
-
 export class ExerciseService {
-  private storage = inject(StorageService);
-
   readonly builtInExercises = signal<Exercise[]>([
     { id: 'bench-press', name: 'Bench Press', category: 'strength' },
     { id: 'squat', name: 'Squat', category: 'strength' },
@@ -14,31 +12,27 @@ export class ExerciseService {
     // todo: more?
   ]);
 
-  readonly customExercises = signal<Exercise[]>(
-    this.storage.get<Exercise[]>('workout-log:custom-exercises') ?? []
-  );
-
-  readonly allExercises = computed(() => [
-    ...this.builtInExercises(),
-    ...this.customExercises(),
-  ]);
+  readonly customExercises = signal<Exercise[]>(this.load());
+  readonly allExercises = computed(() => [...this.builtInExercises(), ...this.customExercises()]);
 
   constructor() {
     effect(() => {
-      this.storage.set('workout-log:custom-exercises', this.customExercises());
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.customExercises()));
     });
+  }
+
+  private load(): Exercise[] {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }
+
+  addCustom(name: string, category: Exercise['category']): void {
+    this.customExercises.update(list => [...list, {
+      id: crypto.randomUUID(), name, category,
+    }]);
   }
 
   getName(id: string): string {
     return this.allExercises().find(e => e.id === id)?.name ?? 'Unknown';
-  }
-
-  addCustom(name: string, category: Exercise['category']): void {
-    const newExercise: Exercise = {
-      id: crypto.randomUUID(),
-      name,
-      category,
-    };
-    this.customExercises.update(current => [...current, newExercise]);
   }
 }
