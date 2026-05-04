@@ -1,0 +1,80 @@
+<div class="page-container">
+    <!-- Initial State when loading the workout page without any active ones. -->
+    @if (!isActive()) {
+        <header class="mb-5">
+            <p class="label-eyebrow">Ready?</p>
+            <h1 class="text-lg font-medium">Pick an exercise</h1>
+        </header>
+
+        <div class="grid grid-cols-2 gap-2 mb-5">
+            @for (exercise of exerciseService.builtInExercises(); track exercise.id) {
+                <button (click)="pickExercise(exercise)" class="card text-sm font-medium min-h-[60px]">
+                    {{ exercise.name }}
+                </button>
+            }
+        </div>
+
+        @if (exerciseService.customExercises().length > 0) {
+            <p class="label-eyebrow">Your exercises</p>
+            <div class="grid grid-cols-2 gap-2 mb-5">
+            @for (exercise of exerciseService.customExercises(); track exercise.id) {
+                <button (click)="pickExercise(exercise)" class="card text-sm font-medium min-h-[60px] border border-[var(--color-line)]">{{ exercise.name }}</button>
+            }
+            </div>
+        }
+        <button class="btn-dashed">+ Add custom exercise</button>
+    } @else {
+        <header class="flex justify-between items-center mb-5">
+            <div>
+                <p class="label-eyebrow">Active</p>
+                <h1 class="text-base font-medium">Workout</h1>
+            </div>
+            <div class="card !py-1.5 !px-3">
+                <p class="text-base text-[var(--color-accent)] font-medium tabular-nums">14:32</p>
+            </div>
+        </header>
+
+        @for (workoutEx of workoutService.currentWorkout()!.exercises; track workoutEx.exerciseId) {
+            @let isCurrent = workoutEx.exerciseId === workoutService.currentExerciseId();
+
+            <div class="card mb-3" [class.card-active]="isCurrent" (click)="!isCurrent && workoutService.switchToExercise(workoutEx.exerciseId)">
+                <p class="text-sm font-medium mb-2">{{ exerciseService.getName(workoutEx.exerciseId) }}</p>
+
+                <div class="flex flex-col gap-1 mb-3">
+                    @for (set of workoutEx.sets; track $index) {
+                        <p class="text-xs text-[var(--color-muted)]">Set {{ $index + 1 }} · {{ set.weight }} kg × {{ set.reps }}</p>
+                    } @empty {
+                        <p class="text-xs text-[var(--color-muted)]">No sets yet</p>
+                    }
+                </div>
+
+                @if (isCurrent) {
+                    <form [formGroup]="setForm" (ngSubmit)="logSet()">
+                        <div class="grid grid-cols-2 gap-2 mb-3">
+                            <div>
+                                <label class="label-field" for="weight">Weight (kg)</label>
+                                <input id="weight" type="number" formControlName="weight" class="input-base" />
+                            </div>
+                            <div>
+                                <label class="label-field" for="reps">Reps</label>
+                                <input id="reps" type="number" formControlName="reps" class="input-base" />
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary" [disabled]="setForm.invalid">Log set</button>
+                    </form>
+                }
+            </div>
+        }
+
+        @if (showPicker()) {
+            <div class="grid grid-cols-2 gap-2 mb-3">
+                @for (exercise of exerciseService.allExercises(); track exercise.id) {
+                    <button (click)="pickExercise(exercise)" class="card text-sm font-medium min-h-[60px]">{{ exercise.name }}</button>
+                }
+            </div>
+        } @else {
+            <button (click)="showPicker.set(true)" class="btn-dashed mb-4">+ Add another exercise</button>
+        }
+        <button (click)="finishWorkout()" class="btn-danger">Finish workout</button>
+    }
+</div>

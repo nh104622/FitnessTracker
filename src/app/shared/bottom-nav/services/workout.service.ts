@@ -80,7 +80,7 @@ export class WorkoutService {
             return;
 
         const completed: Workout = { ...current, completedAt: LocalDateTime.now() };
-        this.pastWorkouts.update(past => [...past, completed]);
+        this.pastWorkouts.update(past => [completed, ...past]); // put the most recent ones in the front of the list.
         this.clearCurrent();
     }
 
@@ -89,7 +89,7 @@ export class WorkoutService {
         this.clearCurrent();
     }
 
-        private loadCurrent(): Workout | null {
+    private loadCurrent(): Workout | null {
         const raw = localStorage.getItem(STORAGE_KEYS.current);
         return raw ? this.parse(JSON.parse(raw)) : null;
     }
