@@ -8,6 +8,5 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   templateUrl: './bottom-nav.html',
   styleUrl: './bottom-nav.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
-
 })
 export class BottomNav {}
