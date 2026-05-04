@@ -3,6 +3,9 @@ import { WorkoutService } from '../../shared/bottom-nav/services/workout.service
 import { Validators, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ExerciseService } from '../../shared/bottom-nav/services/exercise.service';
 import { Exercise } from '../../shared/bottom-nav/models/exercise.model';
+import { ChronoUnit, LocalDateTime } from '@js-joda/core';
+import { interval, startWith, map } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-workout',
@@ -12,7 +15,6 @@ import { Exercise } from '../../shared/bottom-nav/models/exercise.model';
   templateUrl: './workout.html',
   styleUrl: './workout.css',
 })
-
 export class WorkoutPage {
   protected workoutService = inject(WorkoutService);
   protected exerciseService = inject(ExerciseService);
@@ -44,8 +46,6 @@ export class WorkoutPage {
   }
 
   protected logSet(): void {
-    if (this.setForm.invalid) return;
-
     const { weight, reps } = this.setForm.getRawValue();
     this.workoutService.logSet({ weight: weight!, reps: reps! });
     this.setForm.reset();
@@ -55,5 +55,33 @@ export class WorkoutPage {
     if (confirm('Finish this workout?')) {
       this.workoutService.finishWorkout();
     }
+  }
+
+  // Elapsed time as a formatted string, recomputes when tick or workout changes
+  protected elapsed = computed(() => {
+    const workout = this.workoutService.currentWorkout();
+    if (!workout) return '00:00';
+
+    const totalSeconds = workout.startedAt.until(this.tick(), ChronoUnit.SECONDS);
+    return this.formatElapsed(totalSeconds);
+  });
+
+  // Tick every second; emits the current workout elapsed time.
+  // this signal is automatically subscribed/unsubscibed to interval() without having to worry about it.
+  private tick = toSignal(
+    interval(1000).pipe(
+      startWith(0),
+      map(() => LocalDateTime.now())
+    ),
+    { initialValue: LocalDateTime.now() }
+  );
+
+  private formatElapsed(seconds: number): string {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    const pad = (n: number) => n.toString().padStart(2, '0');
+
+    return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
   }
 }

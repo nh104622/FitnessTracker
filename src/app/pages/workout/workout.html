@@ -5,7 +5,6 @@
             <p class="label-eyebrow">Ready?</p>
             <h1 class="text-lg font-medium">Pick an exercise</h1>
         </header>
-
         <div class="grid grid-cols-2 gap-2 mb-5">
             @for (exercise of exerciseService.builtInExercises(); track exercise.id) {
                 <button (click)="pickExercise(exercise)" class="card text-sm font-medium min-h-[60px]">
@@ -13,7 +12,6 @@
                 </button>
             }
         </div>
-
         @if (exerciseService.customExercises().length > 0) {
             <p class="label-eyebrow">Your exercises</p>
             <div class="grid grid-cols-2 gap-2 mb-5">
@@ -30,10 +28,9 @@
                 <h1 class="text-base font-medium">Workout</h1>
             </div>
             <div class="card !py-1.5 !px-3">
-                <p class="text-base text-[var(--color-accent)] font-medium tabular-nums">14:32</p>
+                <p class="text-base text-[var(--color-accent)] font-medium tabular-nums">{{ elapsed() }}</p>
             </div>
         </header>
-
         @for (workoutEx of workoutService.currentWorkout()!.exercises; track workoutEx.exerciseId) {
             @let isCurrent = workoutEx.exerciseId === workoutService.currentExerciseId();
 
@@ -47,9 +44,8 @@
                         <p class="text-xs text-[var(--color-muted)]">No sets yet</p>
                     }
                 </div>
-
                 @if (isCurrent) {
-                    <form [formGroup]="setForm" (ngSubmit)="logSet()">
+                    <form [formGroup]="setForm" (ngSubmit)="logSet()" (click)="$event.stopPropagation()">
                         <div class="grid grid-cols-2 gap-2 mb-3">
                             <div>
                                 <label class="label-field" for="weight">Weight (kg)</label>
@@ -65,7 +61,6 @@
                 }
             </div>
         }
-
         @if (showPicker()) {
             <div class="grid grid-cols-2 gap-2 mb-3">
                 @for (exercise of exerciseService.allExercises(); track exercise.id) {
