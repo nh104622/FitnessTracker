@@ -1,6 +1,6 @@
-import { effect, Injectable, signal } from "@angular/core";
+import { computed, effect, Injectable, signal } from "@angular/core";
 import { Workout, WorkoutSet } from "../models/workout.model";
-import { LocalDateTime } from '@js-joda/core';
+import { ChronoUnit, LocalDate, LocalDateTime } from '@js-joda/core';
 import { Exercise } from "../models/exercise.model";
 
 const STORAGE_KEYS = {
@@ -15,6 +15,56 @@ export class WorkoutService {
     readonly currentWorkout = signal<Workout | null>(this.loadCurrent());
     readonly pastWorkouts = signal<Workout[]>(this.loadPast());
     readonly currentExerciseId = signal<string | null>(null);
+    
+    readonly recentWorkouts = computed(() => this.pastWorkouts().slice(0, 5));
+    readonly weeklyVolume = computed(() => {
+        const oneWeekAgo = LocalDateTime.now().plusWeeks(-1);
+        return this.pastWorkouts()
+            .filter(w => w.startedAt.isAfter(oneWeekAgo))
+            .flatMap(w => w.exercises)
+            .flatMap(ex => ex.sets)
+            .reduce((sum, set) => sum + set.weight * set.reps, 0);
+        });
+
+    readonly weeklyWorkoutCount = computed(() => {
+        const oneWeekAgo = LocalDateTime.now().minus(7, ChronoUnit.DAYS);
+        return this.pastWorkouts().filter(w => w.startedAt.isAfter(oneWeekAgo)).length;
+    });
+
+    readonly currentStreak = computed(() => {
+        const completedDates = this.pastWorkouts()
+            .filter(w => w.completedAt !== null)
+            .map(w => w.completedAt!.toLocalDate())
+            // Dedupe — multiple workouts on the same day count as one
+            .reduce<LocalDate[]>((acc, date) => {
+                if (!acc.some(d => d.equals(date))) acc.push(date);
+                return acc;
+            }, [])
+            .sort((a, b) => b.compareTo(a));
+
+        if (completedDates.length === 0) return 0;
+
+        const today = LocalDate.now();
+        let expected = today.equals(completedDates[0]) ? today : today.minusDays(1);
+        let streak = 0;
+
+        for (const date of completedDates) {
+            if (date.equals(expected)) {
+                streak++;
+                expected = expected.minusDays(1);
+            } else {
+                break;
+            }
+        }
+
+        return streak;
+    });
+
+    totalVolume(workout: Workout): number {
+        return workout.exercises
+            .flatMap(ex => ex.sets)
+            .reduce((sum, set) => sum + set.weight * set.reps, 0);
+    }
 
     constructor() {
         effect(() => {

@@ -1,25 +1,43 @@
-<section class="p-2 flex flex-col gap-2">
-    <div>Saturday</div>
-    <div class="mb-2">Welcome back</div>
-    <div class="flex gap-2">
-        <div class="rounded-lg">
-            <div>Streak</div>
-            <div>5</div>
-            <div>days</div>
-        </div>
-        <div class="rounded-lg">
-            <div>Streak</div>
-            <div>5</div>
-            <div>days</div>
-        </div>
-        <div class="rounded-lg">
-            <div>Streak</div>
-            <div>5</div>
-            <div>days</div>
-        </div>
+<div class="page-container">
+  <header class="mb-5">
+    <p class="label-eyebrow">Saturday</p>
+    <h1 class="text-lg font-medium">Welcome back</h1>
+  </header>
+  <div class="grid grid-cols-3 gap-2 mb-5">
+    <div class="card">
+      <p class="label-eyebrow">Streak</p>
+      <p class="text-2xl font-medium">{{ workoutService.currentStreak() }}</p>
+      <p class="text-xs text-[var(--color-muted)]">days</p>
     </div>
-    <button class="rounded-lg text-center">
-        <div>+ Start workout</div>
-    </button>
-    <div mb-2>Recent workouts</div>
-</section>
+    <div class="card">
+      <p class="label-eyebrow">This wk</p>
+      <p class="text-2xl font-medium">{{ workoutService.weeklyWorkoutCount() }}</p>
+      <p class="text-xs text-[var(--color-muted)]">workouts</p>
+    </div>
+    <div class="card">
+      <p class="label-eyebrow">Volume</p>
+      <p class="text-xl font-medium">{{ workoutService.weeklyVolume() | number:'1.0-0' }}</p>
+      <p class="text-xs text-[var(--color-muted)]">kg</p>
+    </div>
+  </div>
+  <a routerLink="/workout" class="btn-primary block mb-5">+ Start workout</a>
+  <p class="text-sm font-medium mb-3">Recent workouts</p>
+  @if (workoutService.recentWorkouts().length === 0) {
+    <div class="card text-center">
+      <p class="text-sm text-[var(--color-muted)] mb-3">No workouts yet</p>
+      <a routerLink="/workout" class="btn-primary inline-block">Start your first one</a>
+    </div>
+  } @else {
+    <div class="flex flex-col gap-2">
+      @for (workout of workoutService.recentWorkouts(); track workout.id) {
+        <a routerLink="/history" class="card flex justify-between items-center">
+          <div>
+            <p class="text-xs">{{ workout.startedAt | jodaDate }}</p>
+            <p class="text-xs text-[var(--color-muted)]">{{ workout.exercises.length }} exercises · {{ workoutService.totalVolume(workout) | number:'1.0-0' }} kg</p>
+          </div>
+          <span class="text-[var(--color-muted)]">›</span>
+        </a>
+      }
+    </div>
+  }
+</div>
