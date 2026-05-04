@@ -1,1 +1,85 @@
-<p>history works!</p>
+<div class="page-container">
+  <header class="mb-5">
+    <p class="label-eyebrow">Past</p>
+    <h1 class="text-lg font-medium">Workout history</h1>
+  </header>
+  <div class="card mb-4">
+    <div class="mb-3">
+      <label class="label-field" for="search">Search exercise</label>
+      <input
+        id="search"
+        type="text"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+        placeholder="e.g. squat"
+        class="input-base"
+      />
+    </div>
+    <div class="grid grid-cols-2 gap-2 mb-3">
+      <div>
+        <label class="label-field" for="from">From</label>
+        <input
+          id="from"
+          type="date"
+          [ngModel]="fromDate()"
+          (ngModelChange)="fromDate.set($event)"
+          class="input-base"
+        />
+      </div>
+      <div>
+        <label class="label-field" for="to">To</label>
+        <input
+          id="to"
+          type="date"
+          [ngModel]="toDate()"
+          (ngModelChange)="toDate.set($event)"
+          class="input-base"
+        />
+      </div>
+    </div>
+    <button (click)="clearFilters()" class="btn-secondary text-xs">Clear filters</button>
+  </div>
+  @if (workoutService.pastWorkouts().length === 0) {
+    <div class="card text-center">
+      <p class="text-sm text-[var(--color-muted)]">No workouts logged yet</p>
+    </div>
+  } @else if (filteredWorkouts().length === 0) {
+    <div class="card text-center">
+      <p class="text-sm text-[var(--color-muted)]">No workouts match your filters</p>
+    </div>
+  } @else {
+    <div class="flex flex-col gap-2">
+      @for (workout of filteredWorkouts(); track workout.id) {
+        @let isExpanded = expandedId() === workout.id;
+        
+        <div class="card">
+          <button (click)="toggleExpanded(workout.id)" class="w-full flex justify-between items-center text-left">
+            <div>
+              <p class="text-xs font-medium">{{ workout.startedAt | jodaDate }}</p>
+              <p class="text-xs text-[var(--color-muted)]">
+                {{ workout.exercises.length }} exercises ·
+                {{ totalSets(workout) }} sets ·
+                {{ workoutService.totalVolume(workout) | number:'1.0-0' }} kg
+              </p>
+            </div>
+            <span [class.text-[var(--color-accent)]]="isExpanded" class="text-xs">{{ isExpanded ? '▼' : '▶' }}</span>
+          </button>
+          @if (isExpanded) {
+            <div class="border-t border-[var(--color-line)] pt-3 mt-3">
+              @for (ex of workout.exercises; track ex.exerciseId) {
+                <p class="text-xs font-medium">
+                  {{ exerciseService.getName(ex.exerciseId) }}
+                </p>
+                <p class="text-xs text-[var(--color-muted)] pl-2 mb-2">
+                  @for (set of ex.sets; track $index; let last = $last) {
+                    <div>{{ set.weight }}×{{ set.reps }}{{ last ? '' : ', ' }}</div>
+                  }
+                </p>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
